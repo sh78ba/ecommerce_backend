@@ -15,6 +15,8 @@
 - Acess Token 
 - password (encrypted using bcrypt)
 - Connection to MongoDb
-
-
+- Route express,mongoose,bcryptjs
+- json web token
+- model 
+- 
 

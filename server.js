@@ -10,6 +10,8 @@ const db_config=require("./configs/db.config")
 const user_model=require("./models/user.model");
 const bcrypt=require("bcryptjs");
 
+app.use(express.json())
+
 mongoose.connect(db_config.DB_URL);
 const db=mongoose.connection;
 
@@ -37,12 +39,14 @@ async function init(){
             userType:"ADMIN",
             password:bcrypt.hashSync("Welcome1",8)
         })
-        console.log("Admin Created");
+        console.log("Admin Created",user);
     }catch(err){
         console.log("Error while creating admin",err)
     }
 }
 
+// stitch the route to the server
+require("./routes/auth.route")(app);
 
 
 app.listen(server_cofig.PORT,()=>{
