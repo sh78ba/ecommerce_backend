@@ -1,7 +1,8 @@
 // middleware to check for request body
 
 const user_model=require("../models/user.model")
-
+const jwt=require("jsonwebtoken")
+const auth_config=require("../configs/auth.config")
 const verifySignUpBody=async (req,res,next)=>{
     
     try{
@@ -48,6 +49,67 @@ const verifySignUpBody=async (req,res,next)=>{
     }
 }
 
+const verifySignInBody=async(req,res,next)=>{
+if(!req.body.userId){
+    return res.status(400).send({
+        message:"User Id is  not provided"
+    })
+}
+
+if(!req.body.password){
+    return res.status(400).send({
+        message:"Password is  not provided"
+    })
+}
+next();
+
+}
+
+const verifyToken=(req,res,next)=>{
+    //check if token is present in the header
+    const token=req.header("x-access-token")
+
+    if(!token){
+        return res.status(403).send({
+            message:"No token found:UnAuthorized"
+        })
+    }
+     //if it's valid token
+   jwt.verify(token,auth_config.secret,async(err,decoded)=>{
+    if(err){
+        return res.status(401).send({
+            message:"UnAuthorized!!"
+        })
+    }
+    const user=await user_model.findOne({userId:decoded.id})
+    if(!user){
+        return res.status(400).send({
+            message:"UnAuthorized, the user for this token doesn't exists"
+        })
+    }
+    ///set the user info in the req body
+    req.user=user
+
+    next()
+   })
+  
+    //move to next step   
+}
+
+const isAdmin=(req,res,next)=>{
+    const user=req.user
+    if(user&&user.userType=="ADMIN"){
+        next()
+    }else{
+        return res.status(403).send({
+            message:"Only ADMIN users are allowed to access this end point"
+        })
+    }
+}
+
 module.exports={
-    verifySignUpBody:verifySignUpBody
+    verifySignUpBody:verifySignUpBody,
+    verifySignInBody:verifySignInBody,
+    verifyToken:verifyToken,
+    isAdmin:isAdmin
 }

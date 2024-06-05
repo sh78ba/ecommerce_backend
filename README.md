@@ -18,5 +18,5 @@
 - Route express,mongoose,bcryptjs
 - json web token
 - model 
-- 
+- Api for category resource
 
